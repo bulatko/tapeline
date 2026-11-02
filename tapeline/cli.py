@@ -4,6 +4,7 @@
     tapeline run --frames frames/ --poses poses.txt --work runs/room     # your own poses
     tapeline plan --video room.mp4 --work runs/room                       # print stages and artefact paths
     tapeline gates --video room.mp4 --work runs/room                      # print recorded stage gates
+    tapeline viz runs/room                                                # triptych video, hero image, maps
 
 `run` executes the stages one by one; a red stage gate is
 recorded (manifest.json, run_summary.json) and the run continues; `--strict` stops at the first red
@@ -39,7 +40,8 @@ def _parse_overrides(items):
 
 def _parser():
     ap = argparse.ArgumentParser(prog="tapeline", description="Camera poses and room reconstruction from video.")
-    ap.add_argument("command", choices=["run", "plan", "gates"])
+    ap.add_argument("command", choices=["run", "plan", "gates", "viz"])
+    ap.add_argument("target", nargs="?", help="viz: the work directory of a finished run (default: --work)")
     ap.add_argument("--video", help="input video file")
     ap.add_argument("--frames", help="directory with frames (instead of --video)")
     ap.add_argument("--poses", help="known camera poses for --frames (switches the prior to 'external')")
@@ -60,11 +62,37 @@ def _parser():
     ap.add_argument("--no-cpu-quota", action="store_true",
                     help="do not apply the container CPU quota to process-wide thread pools (OpenMP/MKL, torch, "
                          "OpenCV, COLMAP); stage worker pools still follow the cpu_quota config field")
+    v = ap.add_argument_group("viz", "options of `tapeline viz <work>` (see tapeline/viz.py)")
+    v.add_argument("--out", help="output directory (default: <work>/viz)")
+    v.add_argument("--only", nargs="*", default=None, choices=["triptych", "gif", "hero", "topview", "visibility"],
+                   help="render only these outputs (default: all)")
+    v.add_argument("--fps", type=float, default=10, help="frame rate of triptych.mp4 (one selected frame per video frame)")
+    v.add_argument("--height", type=int, default=360, help="panel height of triptych.mp4, px")
+    v.add_argument("--gif-fps", type=float, default=8)
+    v.add_argument("--gif-seconds", type=float, default=12, help="length of triptych.gif; frames are sampled evenly")
+    v.add_argument("--gif-width", type=int, default=800, help="total width of triptych.gif, px")
+    v.add_argument("--max-points", type=int, default=2_000_000, help="random subset of the cloud used for rendering")
     return ap
 
 
+def _viz(a):
+    from . import viz
+    work = a.target or a.work
+    scene = viz.load_run(work, max_points=a.max_points)
+    res = viz.render(scene, a.out or os.path.join(work, "viz"), fps=a.fps, height=a.height, gif_fps=a.gif_fps,
+                     gif_seconds=a.gif_seconds, gif_width=a.gif_width,
+                     what=tuple(a.only) if a.only else ("triptych", "gif", "hero", "topview", "visibility"))
+    print(json.dumps(res, indent=1))
+    return 0
+
+
 def main(argv=None):
-    a = _parser().parse_args(argv)
+    ap = _parser()
+    a = ap.parse_args(argv)
+    if a.command == "viz":
+        return _viz(a)
+    if a.target:
+        ap.error(f"unexpected argument {a.target!r}: a positional work directory is accepted only by viz")
     over = _parse_overrides(a.overrides)
     if a.no_prefetch:
         over["prefetch"] = False

@@ -1,8 +1,12 @@
 # Tapeline
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23897699.svg)](https://doi.org/10.5281/zenodo.23897699)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
 
 Camera poses and room reconstruction from a video.
+
+![Point cloud and camera frustums reconstructed from a 21-second walkthrough video](docs/assets/hero.jpg)
 
 Tapeline turns a handheld indoor video (phone or tablet) into metric camera poses, a coloured point
 cloud of the room in a gravity-aligned frame with the floor at `z = 0`, and a 2D visibility map
@@ -70,6 +74,7 @@ Other commands and options:
 ```bash
 tapeline plan  --video room.mp4 --work runs/room      # stages and artefact paths
 tapeline gates --video room.mp4 --work runs/room      # recorded stage gates
+tapeline viz   runs/room                              # pictures and videos of a run, see Visualization
 tapeline run ... --set max_keypoints=2048 --set frames_max=300   # override any Config field
 tapeline run ... --strict          # stop at the first red gate (default: record it and continue)
 tapeline run ... --export          # also write a mesh
@@ -81,6 +86,50 @@ From Python:
 from tapeline import Pipeline, Config
 Pipeline(Config(video="room.mp4", work="runs/room", vggt_ckpt="vggt_omega_1b_512.pt")).run()
 ```
+
+## Example
+
+A 21-second handheld walkthrough of a house (1920x1080, 30 fps), 200 frames:
+
+```bash
+tapeline run --video house.mp4 --work runs/house --vggt-ckpt vggt_omega_1b_512.pt \
+             --set frames_min=200 --set frames_max=200
+tapeline viz runs/house
+```
+
+Input frame | the fused point cloud rendered from the refined pose of that frame | top view with the
+camera trajectory and the current camera's field of view:
+
+![Triptych: input frame, point cloud rendered from the same pose, top view](docs/assets/triptych.gif)
+
+Top view of the cloud (ceiling cut away) with the trajectory, coloured by time, and the visibility map
+from `wallfield.npz`: cells where the cameras saw empty space (colour) versus cells nobody looked at (dark):
+
+<p>
+<img src="docs/assets/topview.png" alt="Top view of the point cloud with the camera trajectory" width="45%">
+<img src="docs/assets/visibility.png" alt="Visibility map: observed free space versus unobserved cells" width="53%">
+</p>
+
+Input video: [Video of a House Interior](https://www.pexels.com/video/video-of-a-house-interior-7578547/)
+by [Kindel Media](https://www.pexels.com/@kindelmedia/) on Pexels.
+
+## Visualization
+
+`tapeline viz <work>` renders a finished run on the CPU (numpy z-buffer splatting, no OpenGL) into
+`<work>/viz/`:
+
+| file | content |
+|---|---|
+| `triptych.mp4` | per selected frame: input frame, the cloud rendered from that frame's pose, top view with trajectory and camera |
+| `triptych.gif` | the same, shorter and smaller (frames sampled evenly over the whole video) |
+| `hero.jpg` | oblique view of the cloud from above, ceiling cut away, with camera frustums |
+| `topview.png` | the cloud from above with the full trajectory |
+| `visibility.png` | the visibility map of `wallfield.npz` (needs matplotlib: `pip install -e "tapeline[viz]"`) |
+
+The middle panel of the triptych doubles as a check of the poses: with a wrong pose the rendered
+cloud does not line up with the frame. Options: `--out DIR`, `--only hero gif ...`, `--fps`,
+`--height` (panel height of the MP4), `--gif-seconds`, `--gif-fps`, `--gif-width`, `--max-points`.
+From Python: `from tapeline import viz; viz.render(viz.load_run("runs/room"), "out/")`.
 
 ## Stages
 
@@ -198,7 +247,7 @@ If you use Tapeline, please cite it (see [`CITATION.cff`](CITATION.cff)):
 @software{gabdullin_tapeline,
   author  = {Gabdullin, Bulat},
   title   = {Tapeline: camera poses and room reconstruction from video},
-  version = {0.1.0},
+  version = {0.1.1},
   year    = {2026},
   doi     = {10.5281/zenodo.23897699},
   url     = {https://github.com/bulatko/tapeline},

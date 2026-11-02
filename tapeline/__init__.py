@@ -11,4 +11,4 @@ from .config import Config
 from .runner import Pipeline, ORDER
 
 __all__ = ["Config", "Pipeline", "ORDER"]
-__version__ = "0.1.0"
+__version__ = "0.1.1"

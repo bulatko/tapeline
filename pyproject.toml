@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tapeline"
-version = "0.1.0"
+version = "0.1.1"
 description = "Camera poses and room reconstruction from video: pose prior, GPU bundle adjustment, posed depth, metric scale, TSDF fusion and a visibility map"
 readme = "README.md"
 license = {text = "Apache-2.0"}
@@ -37,6 +37,7 @@ dependencies = [
 #   DINOv2          - loaded through torch.hub (facebookresearch/dinov2), no package needed
 models = ["torch", "lightglue", "depth-anything-3", "vggt-omega"]
 mesh = ["open3d"]
+viz = ["matplotlib"]   # tapeline viz: visibility map plot (the other outputs need only numpy, Pillow, PyAV)
 usd = ["usd-core"]
 test = ["pytest", "pyyaml"]
 

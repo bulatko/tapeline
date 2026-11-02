@@ -6,8 +6,8 @@ authors:
   - family-names: Gabdullin
     given-names: Bulat
     orcid: "https://orcid.org/0000-0003-4112-0300"
-version: 0.1.0
-date-released: "2026-11-02"
+version: 0.1.1
+date-released: "2026-11-03"
 doi: 10.5281/zenodo.23897699
 identifiers:
   - type: doi
