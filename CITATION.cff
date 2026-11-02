@@ -1,4 +1,3 @@
-# TODO before release: add `doi:` (Zenodo) and `date-released:` (release date of v0.1.0).
 cff-version: 1.2.0
 message: "If you use Tapeline, please cite it as below."
 title: "Tapeline: camera poses and room reconstruction from video"
@@ -8,6 +7,15 @@ authors:
     given-names: Bulat
     orcid: "https://orcid.org/0000-0003-4112-0300"
 version: 0.1.0
+date-released: "2026-11-02"
+doi: 10.5281/zenodo.23897699
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23897699
+    description: "Concept DOI (all versions)"
+  - type: doi
+    value: 10.5281/zenodo.23897700
+    description: "Version 0.1.0"
 license: Apache-2.0
 repository-code: "https://github.com/bulatko/tapeline"
 keywords:

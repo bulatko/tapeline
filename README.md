@@ -1,5 +1,7 @@
 # Tapeline
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23897699.svg)](https://doi.org/10.5281/zenodo.23897699)
+
 Camera poses and room reconstruction from a video.
 
 Tapeline turns a handheld indoor video (phone or tablet) into metric camera poses, a coloured point
@@ -197,6 +199,8 @@ If you use Tapeline, please cite it (see [`CITATION.cff`](CITATION.cff)):
   author  = {Gabdullin, Bulat},
   title   = {Tapeline: camera poses and room reconstruction from video},
   version = {0.1.0},
+  year    = {2026},
+  doi     = {10.5281/zenodo.23897699},
   url     = {https://github.com/bulatko/tapeline},
   license = {Apache-2.0}
 }
