@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tapeline"
+version = "0.1.0"
+description = "Camera poses and room reconstruction from video: pose prior, GPU bundle adjustment, posed depth, metric scale, TSDF fusion and a visibility map"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+authors = [{name = "Bulat Gabdullin"}]
+requires-python = ">=3.10"
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+dependencies = [
+    "numpy",
+    "scipy",
+    "opencv-python",
+    "pillow",
+    "av",              # PyAV: parallel frame decoding of the fast frame path
+    "threadpoolctl",   # sizes BLAS thread pools to the container CPU quota
+    # Pinned: sfm_gpu reads the memory layout of pycolmap's C++ structures directly (ctypes) for fast
+    # export/import of reconstructions; on a different build it silently falls back to the much slower
+    # per-element path. 4.0.4 is the version the pipeline was validated with.
+    "pycolmap==4.0.4",
+]
+
+[project.optional-dependencies]
+# Model stacks are installed separately for the local CUDA/torch build, see README "Installation":
+#   torch           - https://pytorch.org (CUDA build)
+#   lightglue       - pip install git+https://github.com/cvg/LightGlue
+#   depth-anything-3 - pip install git+https://github.com/ByteDance-Seed/Depth-Anything-3
+#   vggt-omega      - git clone https://github.com/facebookresearch/vggt-omega && pip install -e vggt-omega
+#   DINOv2          - loaded through torch.hub (facebookresearch/dinov2), no package needed
+models = ["torch", "lightglue", "depth-anything-3", "vggt-omega"]
+mesh = ["open3d"]
+usd = ["usd-core"]
+test = ["pytest", "pyyaml"]
+
+[project.scripts]
+tapeline = "tapeline.cli:main"
+
+[project.urls]
+Repository = "https://github.com/bulatko/tapeline"
+
+[tool.setuptools.packages.find]
+include = ["tapeline*"]
